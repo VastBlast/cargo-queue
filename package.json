@@ -1,0 +1,14 @@
+{
+  "name": "cargo-queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "compile": "tsc"
+  },
+  "author": "VastBlast",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

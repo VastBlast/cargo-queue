@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es6",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "declaration": true,
+        "declarationMap": true
+    },
+    "lib": [
+        "ES2018"
+    ],
+    "include": [
+        "src/**/*.ts" // Replace "src/**/*.ts" with the path to your TypeScript source files
+    ],
+    "exclude": [
+        "dist"
+    ]
+}
