@@ -29,7 +29,7 @@ export class CargoQueue {
         // options
         this.function = options.function;
         this.max_tasks_per_cargo = options.max_tasks_per_cargo || 10;
-        this.wait_time_ms = options.wait_time_ms || 100;
+        this.wait_time_ms = options.wait_time_ms === undefined ? 100 : options.wait_time_ms;
         this.concurrency = options.concurrency || 4;
 
         this.tasks = [];
