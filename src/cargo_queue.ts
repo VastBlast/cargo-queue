@@ -57,14 +57,19 @@ export class CargoQueue {
                     id = randomInt(0, Number.MAX_SAFE_INTEGER);
                 } while (this.process_promises[id]); // make sure id is unique
 
-                this.process_promises[id] = this.process(id);
+                //this.process_promises[id] = this.process(id);
+                const processPromise = this.process();
+                this.process_promises[id] = processPromise;
+                processPromise.finally(() => {
+                    delete this.process_promises[id];
+                });
             } else {
                 await Promise.race(Object.values(this.process_promises));
                 tryProcess();
             }
         }
 
-        if (this.tasks.length == 1 || this.tasks.length % this.max_tasks_per_cargo == 0) {
+        if (this.tasks.length == 1 || (this.tasks.length > 0 && this.tasks.length % this.max_tasks_per_cargo == 0)) {
             await delay(this.wait_time_ms);
             tryProcess();
         }
@@ -72,7 +77,7 @@ export class CargoQueue {
         return await promise;
     }
 
-    private async process(id: number): Promise<void> {
+    private async process(): Promise<void> {
         const tasks: Task[] = [];
         const length = Math.min(this.max_tasks_per_cargo, this.tasks.length);
         for (let i = 0; i < length; i++) {
@@ -93,7 +98,5 @@ export class CargoQueue {
                 }
             }
         }
-
-        delete this.process_promises[id];
     }
 }
