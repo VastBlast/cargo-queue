@@ -81,16 +81,16 @@ export class CargoQueue {
             tasks.push(task);
         }
 
-        if (tasks.length == 0) return;
-
-        try {
-            const out = await this.function(tasks);
-            for (let i = 0; i < tasks.length; i++) {
-                tasks[i].promise.resolve(out);
-            }
-        } catch (e) {
-            for (let i = 0; i < tasks.length; i++) {
-                tasks[i].promise.reject(e);
+        if (tasks.length > 0) {
+            try {
+                const out = await this.function(tasks);
+                for (let i = 0; i < tasks.length; i++) {
+                    tasks[i].promise.resolve(out);
+                }
+            } catch (e) {
+                for (let i = 0; i < tasks.length; i++) {
+                    tasks[i].promise.reject(e);
+                }
             }
         }
 
