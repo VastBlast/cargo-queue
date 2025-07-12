@@ -2,18 +2,19 @@
     "compilerOptions": {
         "module": "commonjs",
         "esModuleInterop": true,
-        "target": "es6",
+        "target": "es2020",
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
         "declaration": true,
-        "declarationMap": true
+        "declarationMap": true,
+        "lib": [
+            "ES2018",
+            "DOM"
+        ]
     },
-    "lib": [
-        "ES2018"
-    ],
     "include": [
-        "src/**/*.ts" // Replace "src/**/*.ts" with the path to your TypeScript source files
+        "src/**/*.ts"
     ],
     "exclude": [
         "dist"

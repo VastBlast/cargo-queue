@@ -1,56 +1,48 @@
 import { delay, randomInt } from './helpers';
 
-export interface Task {
-    data: any;
+export interface Task<T, R> {
+    data: T;
     promise: {
-        resolve: Function;
-        reject: Function;
+        resolve: (value: R | PromiseLike<R>) => void;
+        reject: (reason?: unknown) => void;
     }
 }
 
-export interface CargoQueueOptions {
-    function: Function;
+export interface CargoQueueOptions<T, R> {
+    function: (tasks: Task<T, R>[]) => Promise<R>;
     max_tasks_per_cargo?: number;
     wait_time_ms?: number;
     concurrency?: number;
 }
 
-export class CargoQueue {
-    private tasks: Task[];
-    private process_promises: object;
+export class CargoQueue<T, R> {
+    private tasks: Task<T, R>[];
+    private process_promises: Record<number, Promise<void>>;
 
     // options
-    private function: Function;
+    private function: (tasks: Task<T, R>[]) => Promise<R>;
     private max_tasks_per_cargo: number;
     private wait_time_ms: number;
     private concurrency: number;
 
-    constructor(options: CargoQueueOptions) {
+    constructor(options: CargoQueueOptions<T, R>) {
         // options
         this.function = options.function;
         this.max_tasks_per_cargo = options.max_tasks_per_cargo || 10;
-        this.wait_time_ms = options.wait_time_ms === undefined ? 100 : options.wait_time_ms;
-        this.concurrency = options.concurrency || 4;
+        this.wait_time_ms = options.wait_time_ms ?? 100;
+        this.concurrency = options.concurrency || 1;
 
         this.tasks = [];
         this.process_promises = {};
     }
 
-    async run(data: any): Promise<any> {
-        let task: Task;
-        const promise = new Promise((resolve, reject) => {
-            task = {
-                data,
-                promise: {
-                    resolve,
-                    reject
-                }
-            }
-
+    async run(data: T): Promise<R> {
+        const promise = new Promise<R>((resolve, reject) => {
+            const task: Task<T, R> = { data, promise: { resolve, reject } };
             this.tasks.push(task);
         });
 
-        const tryProcess = async () => {
+        const tryProcess = async (): Promise<void> => {
             if (Object.keys(this.process_promises).length < this.concurrency) {
                 let id: number;
                 do {
@@ -67,9 +59,9 @@ export class CargoQueue {
                 await Promise.race(Object.values(this.process_promises));
                 tryProcess();
             }
-        }
+        };
 
-        if (this.tasks.length == 1 || (this.tasks.length > 0 && this.tasks.length % this.max_tasks_per_cargo == 0)) {
+        if (this.tasks.length === 1 || (this.tasks.length > 0 && this.tasks.length % this.max_tasks_per_cargo === 0)) {
             await delay(this.wait_time_ms);
             tryProcess();
         }
@@ -78,7 +70,7 @@ export class CargoQueue {
     }
 
     private async process(): Promise<void> {
-        const tasks: Task[] = [];
+        const tasks: Task<T, R>[] = [];
         const length = Math.min(this.max_tasks_per_cargo, this.tasks.length);
         for (let i = 0; i < length; i++) {
             const task = this.tasks.shift();
