@@ -1,6 +1,6 @@
 import { delay, randomInt } from './helpers';
 
-export interface Task<T, R> {
+export interface Task<T, R = void> {
     data: T;
     promise: {
         resolve: (value: R | PromiseLike<R>) => void;
@@ -8,14 +8,14 @@ export interface Task<T, R> {
     }
 }
 
-export interface CargoQueueOptions<T, R> {
+export interface CargoQueueOptions<T, R = void> {
     function: (tasks: Task<T, R>[]) => Promise<R>;
     max_tasks_per_cargo?: number;
     wait_time_ms?: number;
     concurrency?: number;
 }
 
-export class CargoQueue<T, R> {
+export class CargoQueue<T, R = void> {
     private tasks: Task<T, R>[];
     private process_promises: Record<number, Promise<void>>;
 
